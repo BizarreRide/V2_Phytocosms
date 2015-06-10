@@ -1,0 +1,17 @@
+{
+    "contents" : "###############\n# V2 Phytocosms\n# Required packages\n# Quentin Schorpp\n# 02.06.2015\n##############\n\n\nlibrary(ggplot2)\nlibrary(reshape2)\nlibrary(plyr)\nlibrary(MethComp)\nlibrary(agricolae)\nlibrary(foreign)\nlibrary(multcomp)\nlibrary(gridExtra)\nlibrary(extrafont)\nlibrary(effects)\nlibrary(MASS)\n\n#### Function for Standard error\nse <- function(x) sqrt(var(x)/length(x))\n\n##### ggplot2 - Theme\nmytheme = \n        theme_bw() + \n        theme(strip.background = element_rect(color = \"light grey\", fill=\"black\", size=0.1),\n              strip.text.x = element_text(size=8,  colour=\"white\", face=\"italic\"),\n              strip.text.y = element_text(size=8,  colour=\"white\", face=\"italic\"),\n              axis.text.x = element_text(size=7),\n              axis.title.x = element_text(size=8,face=\"bold\", family=\"Times New Roman\"),\n              axis.text.y = element_text(size=7),\n              axis.title.y = element_text(size=8,face=\"bold\", family=\"Times New Roman\"),\n              axis.line = element_line(size=0.25),\n              axis.ticks = element_line(size=0.25),\n              plot.title = element_text(size=11,face=\"bold\", family=\"Times New Roman\"),\n              panel.margin = unit(0, \"lines\"),\n              panel.grid.major = element_blank(),\n              panel.grid.minor = element_blank(),\n              panel.border = element_rect(colour=\"black\", size=0.2, fill=NA))\n\n",
+    "created" : 1433873653722.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3149475799",
+    "id" : "53C49BED",
+    "lastKnownWriteTime" : 1433265108,
+    "path" : "~/git_repositories/V2_Phytocosms/Analysis/V2_RequiredPackages.R",
+    "project_path" : "Analysis/V2_RequiredPackages.R",
+    "properties" : {
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

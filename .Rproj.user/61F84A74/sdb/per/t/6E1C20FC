@@ -1,0 +1,25 @@
+{
+    "contents" : "",
+    "created" : 1433881186765.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "6E1C20FC",
+    "lastKnownWriteTime" : 7011605692497750387,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "1vknqaiz93",
+        "caption" : "cmic2",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=cmic2&cache_key=1vknqaiz93",
+        "displayedObservations" : 80,
+        "environment" : "",
+        "object" : "cmic2",
+        "totalObservations" : 80,
+        "variables" : 6
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}

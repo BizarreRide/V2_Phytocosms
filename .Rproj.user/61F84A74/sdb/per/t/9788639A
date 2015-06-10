@@ -1,0 +1,18 @@
+{
+    "contents" : "###############\n# V2 Phytocosms\n# RDA Analysis\n# Quentin Schorpp\n# 02.06.2015\n##############\n\nsource(\"Analysis/V2_RequiredPackages.R\")\nsource(\"Data/V2_LoadData.R\")\n\n\n",
+    "created" : 1433880739703.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1997612892",
+    "id" : "9788639A",
+    "lastKnownWriteTime" : 1433881701,
+    "path" : "~/git_repositories/V2_Phytocosms/Analysis/V2_RDAAnalysis.R",
+    "project_path" : "Analysis/V2_RDAAnalysis.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "type" : "r_source"
+}
