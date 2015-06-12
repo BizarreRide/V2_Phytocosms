@@ -21,6 +21,16 @@ leaching <- read.delim("Data/V2_Leaching.txt")
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+# Configure "Index"
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#index$plant <- revalue(index$plant, c(Sp ="italic(S.~perfoliatum)",Zm="italic(Z.~mays)"))
+index$soil <- revalue(index$soil, c(loam ="Loam",sand="Sand"))
+index$Lt <- as.factor(index$Lt)
+index$Fc <- as.factor(index$Fc)
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
 # Process Microbial Biomass
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 cmic2 <- cmic[!(cmic$plant=="Wp"),] # exclude "Without Plant"
@@ -99,7 +109,7 @@ full.frame$NH4 <- full.frame$NH4.5 - full.frame$NH4.1
 full.frame$NO3 <- full.frame$NO3.5 - full.frame$NO3.1
 full.frame$pH <- full.frame$ph.after - full.frame$ph.before
 
-full.frame <- cbind(full.frame[,1:5], full.frame[,c("root","shoot", "Ltbm", "col", "Cmic", "CN", "C", "N", "NH4", "NO3", "pH")])
+full.frame <- cbind(full.frame[,1:7], full.frame[,c("root","shoot", "Ltbm", "col", "Cmic", "CN", "C", "N", "NH4", "NO3", "pH")])
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

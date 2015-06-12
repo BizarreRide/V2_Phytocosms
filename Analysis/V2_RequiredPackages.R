@@ -17,6 +17,10 @@ library(gridExtra)
 library(extrafont)
 library(effects)
 library(MASS)
+library(vegan)
+library(mvnormtest)
+library(splitstackshape)
+
 
 #### Function for Standard error
 se <- function(x) sqrt(var(x)/length(x))
