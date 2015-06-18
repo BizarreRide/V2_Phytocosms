@@ -14,31 +14,38 @@ full.frame <- full.frame[-11,]
 # Divide data frame in subsets ####
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 soil <- full.frame[,c(12,14:18)]
+colnames(soil)[2:3] <- c("carbon","Nitrogen")
 bio <- full.frame[,8:12]
 env <- full.frame[,c(8:12,14:18)]
 groups <- full.frame[,1:7]
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-summary(soil)
-is.na(soil) <- 
 
 
 # Z-transformation ####
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-soil$NO3 <- soil$NO3*(-1)
-for (i in 1:10) {
-        na.action=na.omit(soil)
-        soil[,i] <- soil[,i] + abs(min(soil[,i], na.rm=TRUE))   
-}
+# Here is an approach, that tries to handle negative values in some variables
+# Since No3 is strictly negative, i just turn it inot a positive variable
+# Then all variables get their minimum added,...
 
-soil.log <- log1p(soil)
-soil.z <- data.frame(scale(soil.log))
+#soil$NO3 <- soil$NO3*(-1)
+#for (i in 1:6) {
+#        na.action=na.omit(soil)
+#        soil[,i] <- soil[,i] + abs(min(soil[,i], na.rm=TRUE))   
+#}
+
+#soil.log <- log1p(soil)
+#soil.z <- data.frame(scale(soil.log))
+#soil.z[is.na(soil.z)] <- 0
+
+# However, without caring for multinormality:
+soil.z <- data.frame(scale(soil))
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 # Test for normal distribution ####
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 par(mfrow=c(3,4))
-for (i in 1:10) {
+for (i in 1:6) {
         qqnorm(soil.z[,i], xlab=colnames(soil.z[i]))
         qqline(soil.z[,i])
         
@@ -46,23 +53,33 @@ for (i in 1:10) {
 }
 
 par(mfrow=c(3,4))
-for (i in 1:10) {
+for (i in 1:6) {
         hist(soil.z[,i], xlab=colnames(soil.z[i]))
 }
 summary(soil.z)
 
+par(mfrow=c(1,1))
+
+scatter.smooth(soil$NH4)
+ggplot(full.frame, aes(y=NH4,x=c(1:79), col=plant, shape=treat)) + geom_point(size=8)
+
 soil.mnorm <- t(soil.z)
-mshapiro.test(soil.mnorm) # NO Normal Distribution!!!!!
+mshapiro.test(soil.mnorm) # NO Multi-Normal Distribution!!!!!
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-soil.z[is.na(soil.z)] <- 0 
+
+# PCA of soil variables ####
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # PCA
 soil.pca <- rda(soil.z, scale=FALSE)
-summary(soil.pca)
+summary(soil.pca) # scaling 2 by default
 summary(soil.pca, scaling=1)
 
+# Loads of variables:
+scores(soil.pca, choices = 1:4, display = "species", scaling = 0)
 
+## Some Explanations of PCA Terms: ####
 # Inertia: in vegan's language this is the term for "variation" in the data. This term comes from the word of CA (Sect. 5.4). 
 # In PCA, the "inertia" is either the sum of the variances of the variables (PCA on a covariance matrix) or the sum of the diagonal values 
 # of the correlation matrix (PCA on a correlation matrix), i.e. the sum of all correlations of the variables with themselves, 
@@ -83,13 +100,7 @@ summary(soil.pca, scaling=1)
 
 # Site scores: coordinates of the sites in the ordination diagram. Objects are always called "Sites" in vegan output files.
 
-
-
-
-# Loads of variables:
-scores(soil.pca, choices = 1:4, display = "species", scaling = 0)
-
-# Biplot
+# Biplots ####
 
 source("Analysis/evplot.R")
 source("Analysis/cleanplot.pca.R")
@@ -97,18 +108,44 @@ source("Analysis/cleanplot.pca.R")
 eigenvalues <- soil.pca$CA$eig
 evplot(eigenvalues) # One interprets only the axes whose eigenvalues are larger than the length of corresponding piece of the sticks
 
+cleanplot.pca(soil.pca, ahead=0)
 
 par(mfrow=c(1,2))
 biplot(soil.pca, scaling=1,  main="PCA - Scaling 1")
 pcacircle(soil.pca)
 biplot(soil.pca, scaling=2,  main="PCA - Scaling 2")
 
-cleanplot.pca(soil.pca, ahead=0)
+# Interpretation ####
+# The Proportion of variance accounted for by the first two axes is 0.7375 or 73.8% This high value makes us confident 
+# that our interpretation of the first pair of axes extracts most relevant information from the data. 
 
-par(mfrow=c(1,1))
-pl <- biplot(soil.pca, type = "points")
-identify(pl,"sp", plot=TRUE, atpen=TRUE, labels=names(soil.z), cex=1.0)
+# First, the scaling 1 biplot displays a feature that must be explained. The circle is called a circle of equilibrium contribution. Its radius is equal to sqrt(d/p), 
+# where d is the number of axes represented in the biplot (usually d=2) and p is the number of dimensions of the PCA space (i.e. the number of variables of the data matrix,
+#                                                                                                                          6 in this case)
+# The radius of this circle represents the length of the vector representing a variable that contributes equally to all the dimanesions of the PCA space. Therefore, 
+# for any given pair of axis the variables that have vectors longer than this radius make a higher contribution than average and can be interpreted with confidence.
 
-points(pl, "sites", pch=25, bg=interaction(groups$soil, groups$plant), cex=0.7)
+# The top right quarter of the scaling 1 biplot shows Microcosms with the highest values for pH, C and N content of the soil
+# Ther is a gradient from topleft to buttom right qarter, The gradient displays Microcosms with either high
+# values for No3 (topleft) of high values of NH4 (buttomright). The buttom right Microcosms have the highest values for both cmic and NH4, 
+# And also the lowes values of NO3. Keep in Mind, that No3 was multiplicated with -1 prior to analysis.
 
-rda(env, scale=TRUE)
+# The scaling 2 biplot shows, that variables NO3 and nH4 are highly negatively correlated, as well as Cmic and No3. N, C and pH have nearly othogonal arrows indicating 
+# a correlation close to 0. 
+#####
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+# PCA of bio variables ####
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+bio[is.na(bio)] <- 0
+bio.pca <- rda(bio, scale=TRUE)
+cleanplot.pca(bio.pca, ahead=0)
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+

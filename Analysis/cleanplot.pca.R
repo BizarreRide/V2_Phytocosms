@@ -15,7 +15,7 @@
 	# Scaling 1: "species" scores scaled to relative eigenvalues
 	sit.sc1 <- scores(res.pca, display="wa", scaling=1, choices=c(1:p))
 	spe.sc1 <- scores(res.pca, display="sp", scaling=1, choices=c(1:p))
-	plot(res.pca, choices=c(ax1, ax2), display=c("wa", "sp"), type="n", 
+	biplot(res.pca, choices=c(ax1, ax2), display=c("wa", "sp"), type="n", 
 		main="PCA - scaling 1", scaling=1)
 	if (point)
 	{
@@ -34,7 +34,7 @@
 	# Scaling 2: site scores scaled to relative eigenvalues
 	sit.sc2 <- scores(res.pca, display="wa", choices=c(1:p))
 	spe.sc2 <- scores(res.pca, display="sp", choices=c(1:p))
-	plot(res.pca, choices=c(ax1,ax2), display=c("wa","sp"), type="n", 
+	biplot(res.pca, choices=c(ax1,ax2), display=c("wa","sp"), type="n", 
 		main="PCA - scaling 2")
 	if (point) {
 		points(sit.sc2[,ax1], sit.sc2[,ax2], pch=20)
