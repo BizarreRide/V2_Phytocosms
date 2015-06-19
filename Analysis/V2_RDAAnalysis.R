@@ -143,6 +143,11 @@ bio[is.na(bio)] <- 0
 bio.pca <- rda(bio, scale=TRUE)
 cleanplot.pca(bio.pca, ahead=0)
 
+
+library(FactoMineR)
+PCA(bio)
+
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

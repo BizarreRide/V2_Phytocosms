@@ -20,6 +20,8 @@ library(MASS)
 library(vegan)
 library(mvnormtest)
 library(splitstackshape)
+library(FactoMineR)
+library(rgl)
 
 
 #### Function for Standard error
