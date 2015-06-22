@@ -9,6 +9,14 @@
 # from http://stackoverflow.com/questions/24282143/pca-multiplot-in-r
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+res.pca <- prcomp(data, scale=TRUE)
+
+fit <- hclust(dist(res.pca$x[,1:2]), method="complete") 
+plot(fit)
+groups <- cutree(fit, k=4) 
+plot(groups)
+
+
 library(rgl)
 plotPCA <- function(x, nGroup) {
         n <- ncol(x) 
@@ -89,3 +97,5 @@ pc2.3 <- qplot(x=PC2, y=PC3, data=scores, colour=factor(sample.groups)) +
         theme(legend.position="none")
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+

@@ -136,6 +136,22 @@ biplot(soil.pca, scaling=2,  main="PCA - Scaling 2")
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+### Another way of plotting ####
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+soil.pca <- prcomp(soil, scale=TRUE)
+
+fit <- hclust(dist(soil.pca$x[,1:2]), method="complete") 
+plot(fit)
+groups <- cutree(fit, k=4) 
+plot(groups)
+
+plotPCA(soil.pca$x[,1:3],4)
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
 # PCA of bio variables ####
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -147,10 +163,49 @@ cleanplot.pca(bio.pca, ahead=0)
 library(FactoMineR)
 PCA(bio)
 
-
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
+# PCA of a merge of bio and soil variables
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+phyto <- cbind(bio, soil[,2:6])
+phyto.pca <- vegan::rda(phyto)  #, scale=TRUE)
+
+PCA(phyto)
+
+par(mfrow=c(1,2))
+p <- length(phyto.pca$CA$eig)
+
+# Scaling 1: "species" scores scaled to relative eigenvalues
+sit.sc1 <- scores(phyto.pca, display="wa", scaling=1, choices=c(1:p))
+spe.sc1 <- scores(phyto.pca, display="sp", scaling=1, choices=c(1:p))
+biplot(phyto.pca, choices=c(1,2),scaling=1)
+biplot(phyto.pca, choices=c(1, 2), display=c("wa", "sp"), type="n", 
+       main="PCA - scaling 1", scaling=1)
+if (point)
+{
+        points(sit.sc1[,1], sit.sc1[,1], pch=20)
+        text(phyto.pca, display="wa", choices=c(1, 2), cex=0.7, pos=3, scaling=1)
+}
+else
+{
+        text(phyto.pca, display="wa", choices=c(1, 2), cex=0.7, scaling=1)
+}
+text(phyto.pca, display="sp", choices=c(1, 2), cex=0.7, pos=4, 
+     col="red", scaling=1)
+arrows(0, 0, spe.sc1[,1]*0.8, spe.sc1[,2]*0.8, length=0.07, angle=20, col="red")
+pcacircle(phyto.pca)
+
+choices = 1L:2L
+scores <- phyto.pca$x[,1:2]
+names(phyto.pca)
+call(phyto.pca)
+phyto.pca$call
+[choices]
+
+PCA(phyto)
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
