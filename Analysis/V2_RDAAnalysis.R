@@ -5,7 +5,13 @@
 # 02.06.2015
 ##############
 
-source("Analysis/V2_RequiredPackages.R")
+# Description:
+# This is an attempt for mutlivariate analyses of Phytocosms from the phytocosms experiment of Valentina Sandor
+# All measures are calculated as Differences between beginning and end of the experiment, i.e. changes
+        
+
+
+source("Analysis/V2_RequiredPackages.R") #packages agricolae and vegan are colliding
 source("Data/V2_LoadData.R")
 
 # Sample 11 has strange Cmic values
@@ -13,15 +19,16 @@ full.frame <- full.frame[-11,]
 
 # Divide data frame in subsets ####
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-soil <- full.frame[,c(12,14:18)]
+soil <- full.frame[,c(12,14:18)] # abiotic soil measures, including Cmic
 colnames(soil)[2:3] <- c("carbon","Nitrogen")
-bio <- full.frame[,8:12]
-env <- full.frame[,c(8:12,14:18)]
+bio <- full.frame[,8:12] # biotic soil characteristics
+env <- full.frame[,c(8:12,14:18)] # the same as phyto
 groups <- full.frame[,1:7]
+phyto <- cbind(bio, soil[,2:6])  # merge of bio and soil variables 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-# Z-transformation ####
+# Soil ####        
+## Z-transformation ####
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Here is an approach, that tries to handle negative values in some variables
 # Since No3 is strictly negative, i just turn it inot a positive variable
@@ -38,11 +45,11 @@ groups <- full.frame[,1:7]
 #soil.z[is.na(soil.z)] <- 0
 
 # However, without caring for multinormality:
-soil.z <- data.frame(scale(soil))
+# soil.z <- data.frame(scale(soil))
+#  -> rda() can do this 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-# Test for normal distribution ####
+## Test for normal distribution ####
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 par(mfrow=c(3,4))
 for (i in 1:6) {
@@ -68,7 +75,7 @@ mshapiro.test(soil.mnorm) # NO Multi-Normal Distribution!!!!!
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-# PCA of soil variables ####
+## PCA of soil variables ####
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # PCA
@@ -100,7 +107,7 @@ scores(soil.pca, choices = 1:4, display = "species", scaling = 0)
 
 # Site scores: coordinates of the sites in the ordination diagram. Objects are always called "Sites" in vegan output files.
 
-# Biplots ####
+## Biplots ####
 
 source("Analysis/evplot.R")
 source("Analysis/cleanplot.pca.R")
@@ -115,7 +122,7 @@ biplot(soil.pca, scaling=1,  main="PCA - Scaling 1")
 pcacircle(soil.pca)
 biplot(soil.pca, scaling=2,  main="PCA - Scaling 2")
 
-# Interpretation ####
+### Interpretation ####
 # The Proportion of variance accounted for by the first two axes is 0.7375 or 73.8% This high value makes us confident 
 # that our interpretation of the first pair of axes extracts most relevant information from the data. 
 
@@ -135,8 +142,7 @@ biplot(soil.pca, scaling=2,  main="PCA - Scaling 2")
 #####
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-### Another way of plotting ####
+## Another way of plotting ####
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 soil.pca <- prcomp(soil, scale=TRUE)
@@ -148,7 +154,6 @@ plot(groups)
 
 plotPCA(soil.pca$x[,1:3],4)
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 
 
@@ -167,45 +172,80 @@ PCA(bio)
 
 
 
-# PCA of a merge of bio and soil variables
+# PCA of a merge of bio and soil variables ####
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-phyto <- cbind(bio, soil[,2:6])
-phyto.pca <- vegan::rda(phyto)  #, scale=TRUE)
+phyto[is.na(phyto)] <- 0
+phyto.pca <- vegan::rda(phyto, scale=TRUE)  #, scale=TRUE)
 
-PCA(phyto)
-
-par(mfrow=c(1,2))
-p <- length(phyto.pca$CA$eig)
-
-# Scaling 1: "species" scores scaled to relative eigenvalues
-sit.sc1 <- scores(phyto.pca, display="wa", scaling=1, choices=c(1:p))
-spe.sc1 <- scores(phyto.pca, display="sp", scaling=1, choices=c(1:p))
-biplot(phyto.pca, choices=c(1,2),scaling=1)
-biplot(phyto.pca, choices=c(1, 2), display=c("wa", "sp"), type="n", 
-       main="PCA - scaling 1", scaling=1)
-if (point)
-{
-        points(sit.sc1[,1], sit.sc1[,1], pch=20)
-        text(phyto.pca, display="wa", choices=c(1, 2), cex=0.7, pos=3, scaling=1)
-}
-else
-{
-        text(phyto.pca, display="wa", choices=c(1, 2), cex=0.7, scaling=1)
-}
-text(phyto.pca, display="sp", choices=c(1, 2), cex=0.7, pos=4, 
-     col="red", scaling=1)
-arrows(0, 0, spe.sc1[,1]*0.8, spe.sc1[,2]*0.8, length=0.07, angle=20, col="red")
-pcacircle(phyto.pca)
-
-choices = 1L:2L
-scores <- phyto.pca$x[,1:2]
-names(phyto.pca)
-call(phyto.pca)
-phyto.pca$call
-[choices]
-
-PCA(phyto)
-
+cleanplot.pca(phyto.pca)
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+# Combining Clustering and Ordination Results ####
+
+# Clustering the objects using environmental data: Euclidean distance after standardization
+# the variables, followed by Ward clustering
+
+
+phyto.ward <- hclust(dist(scale(phyto)), "ward.D")
+plot(phyto.ward)
+
+# Cut the dendrogram to yield 4 groups
+gr <- cutree(phyto.ward, k=5)
+grl <- levels(factor(gr))
+
+# Get the site scores, scaling 1
+sit.sc1 <- scores(phyto.pca, display="wa", scaling=1)
+
+# Plot the sites with cluster symbols and colours (scaling 1)
+par(mfrow=c(1,1))
+phyto.p1 <- plot(phyto.pca, display="wa", scaling=1, type="n", main="PCA correlation + clusters")
+abline(v=0, lty="dotted")
+abline(h=0, lty="dotted")
+
+for(i in 1:length(grl)) {
+        points(sit.sc1[gr==i,], pch=(14+i), cex=2, col=i+1)
+}
+
+text(sit.sc1, row.names(phyto), cex=0.7, pos=3)
+
+# add the dendrogram
+ordicluster(phyto.p1, phyto.ward, col="dark grey")
+legend(locator(1), paste("Group", c(1:length(grl))), pch=14+c(1:length(grl)), col=14+c(1:length(grl)), pt.cex=2)
+
+str(groups)
+groups$cosm <- factor(groups$cosm)
+
+phyto.rda <- rda(phyto ~ ., scale=TRUE,groups[,-c(1,5,6,7)])
+summary(phyto.rda)
+coef(phyto.rda)
+
+# Unadjusted R^2 retrieved from the rda result
+(R2 <- RsquareAdj(phyto.rda)$r.squared)
+(R2 <- RsquareAdj(phyto.rda)$adj.r.squared)
+
+
+# Scaling 1: distance triplot
+plot(phyto.rda, scaling=1, main="Distance Triplot RDA")
+phyto.sc <- scores(phyto.rda, choices=1:2, scaling=1, display="sp")
+arrows(0,0, phyto.sc[,1], phyto.sc[,2], length=0, lty=1, col="red")
+
+# Scaling 2: correlation triplot
+plot(phyto.rda, main="Correlation Triplot RDA")
+phyto2.sc <- scores(phyto.rda, choices=1:2, display="sp")
+arrows(0,0, phyto2.sc[,1], phyto2.sc[,2], length=0, lty=1, col="red")
+
+
+
+
+
+
+
+
+
+
+
+
+
 

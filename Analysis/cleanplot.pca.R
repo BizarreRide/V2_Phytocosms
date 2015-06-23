@@ -48,6 +48,7 @@
 	arrows(0, 0, spe.sc2[,ax1], spe.sc2[,ax2], length=ahead, angle=20, col="red")
 }
 
+# This plotting procedures plots vectors longer than the default biplot procedure, the reason is a multiplication of 0.8 in the default biplots
 
 
 "pcacircle" <- function (pca) 

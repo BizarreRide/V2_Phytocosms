@@ -61,20 +61,31 @@ ggplot(cmic2, aes(x= ID1, y=Airflow),group=cosm, labeller=label_parsed) +
 a <- which(cmic2$Cmic<200)
 a <- c(a,with(cmic2[(cmic2$treat=="Lt" & cmic2$plant=="Zm" & cmic2$soil=="Loam"),], which(cmic2$Cmic==min(Cmic))))
 cmic2 <- cmic2[-a,]; rm(a)
+
+cmic2 <- cmic2[order(cmic2$soil,cmic2$cosm),] # reorder dataset
+
+# Cmic values from soil at the start of the experiment
 cmic2 <- aggregate(Cmic~cosm+soil+plant+treat, cmic2, mean)
 a <- with(cmic[(cmic$plant=="Wp"),], tapply(Cmic, list(soil,treat), mean))[1,6]
 b <- with(cmic[(cmic$plant=="Wp"),], tapply(Cmic, list(soil,treat), mean))[2,6]
-cmic2 <- cmic2[order(cmic2$soil,cmic2$cosm),]
+
+# Cmic values from soil from pure soil controls (n=1)
 cmic2$Cmic.start <- rep(c(a,b), each=40)
-        
-ggplot(cmic2, aes(x=treat, y=Cmic))
+a <- with(cmic[(cmic$plant=="Wp"),], tapply(Cmic, list(soil,treat), mean))[1,2]
+b <- with(cmic[(cmic$plant=="Wp"),], tapply(Cmic, list(soil,treat), mean))[2,2]
+cmic2$Cmic.control2 <- rep(c(a,b), each=40)
+rm(a,b)
+
+# stacked bars for values of all 5 replicates per treatment
 ggplot(cmic2, aes(x=treat, y=Cmic), labeller=label_parsed) +
         geom_bar(fill="light blue", col="black", lwd=0.2, stat="identity") +
         ylab(expression(paste("µg-C /g soil"))) +
         xlab("Pseudo-Replicates") +
-        ggtitle(expression(paste("Microbial Biomass - Outlier search"))) +
+        ggtitle(expression(paste(""))) +
         facet_grid(soil~plant, labeller=label_parsed) + 
         mytheme
+# Treatments Zm-Loam-Mix and Zm-Loam-Fc both have one odd value 
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 # Create Full Frame with all variables ####
@@ -96,12 +107,12 @@ full.frame <- full.frame[-c(41,82),]
 
 full.frame <- cbind(full.frame, Cmic=cmic2$Cmic, leaching[,-c(1:7)])
 
-
+# full. frame is a dataset that contains only changes between before and after the experiment, in the longest possible duration (Nh4, NO3)
 full.frame$root <- full.frame$root.after - full.frame$root.before
 full.frame$shoot <- full.frame$shoot.after - full.frame$shoot.before
 full.frame$Ltbm <- full.frame$Lt.bm.diff
 full.frame$col <- full.frame$col
-full.frame$Cmic <- cmic2$Cmic - cmic2$Cmic.start # should "start values be subtracted?
+full.frame$Cmic <- cmic2$Cmic - cmic2$Cmic.start # should "start values be subtracted? or Control2 values, or none of them?
 full.frame$CN <- full.frame$CN.after - full.frame$CN.before
 full.frame$N <- full.frame$N.after - full.frame$N.before
 full.frame$C <- full.frame$C.after - full.frame$C.before
