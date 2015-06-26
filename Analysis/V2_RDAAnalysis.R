@@ -27,6 +27,23 @@ groups <- full.frame[,1:7]
 phyto <- cbind(bio, soil[,2:6])  # merge of bio and soil variables 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+# Lineplot for each individual samples and its according measurement
+phyto[is.na(phyto)] <- 0
+phyto$ID <- factor(rownames(phyto))
+phyto.melt <- melt(phyto, id.vars="ID")
+ggplot(phyto.melt, aes(y=value, x=variable)) + geom_line(aes(group=ID))
+
+# Lineplot for each individual sample and its according centered and variance stabilized measurement
+phyto <- phyto[,-grep("ID", names(phyto))]
+phyto.z <- data.frame(scale(phyto))
+phyto.z$ID <- factor(rownames(phyto.z))
+
+phyto.melt <- melt(phyto.z, id.vars="ID")
+groups.melt <- melt(groups, id.vars="ID")
+ggplot(phyto.melt, aes(y=value, x=variable)) + geom_line(aes(group=ID, col=groups.melt$treat))
+
+
+
 # Soil ####        
 ## Z-transformation ####
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
