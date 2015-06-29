@@ -15,7 +15,7 @@ source("Analysis/V2_RequiredPackages.R") #packages agricolae and vegan are colli
 source("Data/V2_LoadData.R")
 
 # Sample 11 has strange Cmic values
-full.frame <- full.frame[-11,]
+full.frame <- full.frame[-11,] # Phytocosm 11 was strange?
 
 # Divide data frame in subsets ####
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -24,25 +24,8 @@ colnames(soil)[2:3] <- c("carbon","Nitrogen")
 bio <- full.frame[,8:12] # biotic soil characteristics
 env <- full.frame[,c(8:12,14:18)] # the same as phyto
 groups <- full.frame[,1:7]
-phyto <- cbind(bio, soil[,2:6])  # merge of bio and soil variables 
+phyto <- cbind(groups,bio, soil[,2:6])  # merge of bio and soil variables 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-# Lineplot for each individual samples and its according measurement
-phyto[is.na(phyto)] <- 0
-phyto$ID <- factor(rownames(phyto))
-phyto.melt <- melt(phyto, id.vars="ID")
-ggplot(phyto.melt, aes(y=value, x=variable)) + geom_line(aes(group=ID))
-
-# Lineplot for each individual sample and its according centered and variance stabilized measurement
-phyto <- phyto[,-grep("ID", names(phyto))]
-phyto.z <- data.frame(scale(phyto))
-phyto.z$ID <- factor(rownames(phyto.z))
-
-phyto.melt <- melt(phyto.z, id.vars="ID")
-groups.melt <- melt(groups, id.vars="ID")
-ggplot(phyto.melt, aes(y=value, x=variable)) + geom_line(aes(group=ID, col=groups.melt$treat))
-
-
 
 # Soil ####        
 ## Z-transformation ####
@@ -188,9 +171,31 @@ PCA(bio)
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+# Bio and soil variables together
+phyto[complete.cases(phyto$Ltbm),!names(phyto) %in% "col"] # subset only L. terrestris biomass without NAs
+phyto[complete.cases(phyto$col),!names(phyto) %in% "Ltbm"] # subset only collembolan counts without NAs
+phyto[is.na(phyto)] <- 0 # All NAs get 0, in particular this refers to abundance and weights of soil organisms [No weight = zero weight????]
+
+
+# variation in the samples according to variables 
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Lineplot for each individual samples and its according measurement
+phyto <- phyto[!names(phyto) %in% c("Ltbm","col")] # exclude Lt biomass and collembolans
+phyto.melt <- melt(phyto, id.vars=1:7)
+ggplot(phyto.melt, aes(y=value, x=variable)) + geom_line(aes(group=ID, col=treat))
+
+# Lineplot for each individual sample and its according centered and variance stabilized measurement
+#phyto <- phyto[,-grep("ID", names(phyto))]
+phyto.z <- data.frame(cbind(phyto[,1:7],scale(phyto[,8:15])))
+phyto.melt <- melt(phyto.z, id.vars=1:7)
+ggplot(phyto.melt, aes(y=value, x=variable)) + geom_line(aes(group=ID, col=treat))
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 # PCA of a merge of bio and soil variables ####
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+phyto <- phyto[,8:15]
 
 phyto[is.na(phyto)] <- 0
 phyto.pca <- vegan::rda(phyto, scale=TRUE)  #, scale=TRUE)
@@ -200,12 +205,13 @@ cleanplot.pca(phyto.pca)
 
 
 # Combining Clustering and Ordination Results ####
-
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Clustering the objects using environmental data: Euclidean distance after standardization
 # the variables, followed by Ward clustering
 
 
-phyto.ward <- hclust(dist(scale(phyto)), "ward.D")
+phyto.ward <- hclust(dist(scale(phyto)), "ward.D") # partition in groups with smallest variance
+
 plot(phyto.ward)
 
 # Cut the dendrogram to yield 4 groups
@@ -253,6 +259,9 @@ plot(phyto.rda, main="Correlation Triplot RDA")
 phyto2.sc <- scores(phyto.rda, choices=1:2, display="sp")
 arrows(0,0, phyto2.sc[,1], phyto2.sc[,2], length=0, lty=1, col="red")
 
+
+anova.cca(phyto.rda, step=1000)
+anova.cca(phyto.rda, by="axis", step=1000)
 
 
 

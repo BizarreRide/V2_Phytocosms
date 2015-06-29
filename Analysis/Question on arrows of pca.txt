@@ -1,0 +1,27 @@
+I recognized that, depending on the R code used, the arrows for Sclaing-1 PCA plots have different lengths. When using the cleanplot.pca function from Legendre the arrows are clearly longer as with functions like FactoMineR::PCA() or biplot() + addition with pcacircle from legendre:
+
+    require(vegan)
+    source(cleanplot.pca)
+    data(varespec)
+    
+    # create pca object
+    vare.pca <- rda(varespec, scale=TRUE)
+    
+    
+    # Draw biplots with long arrows/vectors
+    cleanplot.pca(vare.pca)
+    
+    
+    # Draw biplots with short arrows/vectors
+    par(mfrow=c(1,1))
+    biplot(vare.pca, scaling=1)
+    pcacircle(vare.pca)
+    
+    require(FactoMineR)
+    par(mfrow=c(1,1))
+    PCA(varespec)
+
+Function cleanplot.pca and pcacircle can be found here: https://github.com/jawhiteley/SECC.R.JAW/blob/master/lib/jaw.copied_functions.R
+
+What makes the differences and which vector lengths are "true"?
+
