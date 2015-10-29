@@ -21,7 +21,7 @@ leaching <- read.delim("Data/V2_Leaching.txt")
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-# Configure "Index"
+# Configure "Index"####
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #index$plant <- revalue(index$plant, c(Sp ="italic(S.~perfoliatum)",Zm="italic(Z.~mays)"))
 index$soil <- revalue(index$soil, c(loam ="Loam",sand="Sand"))
@@ -31,7 +31,7 @@ index$Fc <- as.factor(index$Fc)
 
 
 
-# Process Microbial Biomass
+# Process Microbial Biomass ####
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 cmic2 <- cmic[!(cmic$plant=="Wp"),] # exclude "Without Plant"
 cmic2$ID1  <- as.factor(rep(c(1:15),16)) #  Id for ???

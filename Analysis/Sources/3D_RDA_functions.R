@@ -1,3 +1,8 @@
+# These are examples for 3 dimensional PCA plots
+# Script from M. Hemekemeyer.
+
+
+
 library(rgl)
 library(scatterplot3d)
 library(vegan)
@@ -43,7 +48,7 @@ axes3d(edges = "bbox", labels = TRUE, tick = TRUE, box=FALSE, expand = 1.03, col
 texts3d(x=1.6, y=0, z=0, texts="15.9 %", col="grey")
 texts3d(x=0, y=1.9, z=0, texts="6.8 %", col="grey")
 texts3d(x=0, y=0, z=3.9, texts="4.1 %", col="grey")
-with(Class_Fractions, legend3d("topleft", c("63-2000 µm", "20-    63 µm", "   2-    20 µm", "          < 2 µm", "UNF", "1.0 NPK", "1.5 AM"), 
+with(Class_Fractions, legend3d("topleft", c("63-2000 ?m", "20-    63 ?m", "   2-    20 ?m", "          < 2 ?m", "UNF", "1.0 NPK", "1.5 AM"), 
                                pch=c("#","^","v","*","O","O","O"), pt.cex=c(1,1.5,1,1.5, 1, 1, 1), 
                                col=c("black", "black", "black","black", "red", "blue", "darkgreen")))
 

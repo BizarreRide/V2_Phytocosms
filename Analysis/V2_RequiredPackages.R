@@ -24,10 +24,11 @@ library(FactoMineR)
 library(rgl)
 
 
-#### Function for Standard error
+# Function for Standard error ####
 se <- function(x) sqrt(var(x)/length(x))
 
-##### ggplot2 - Theme
+# ggplot2 - Theme ####
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 mytheme = 
         theme_bw() + 
         theme(strip.background = element_rect(color = "light grey", fill="black", size=0.1),
@@ -44,7 +45,11 @@ mytheme =
               panel.grid.major = element_blank(),
               panel.grid.minor = element_blank(),
               panel.border = element_rect(colour="black", size=0.2, fill=NA))
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+# PCA plot function ####
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 plotPCA <- function(x, nGroup) {
         n <- ncol(x) 
         if(!(n %in% c(2,3))) { # check if 2d or 3d
@@ -69,3 +74,4 @@ plotPCA <- function(x, nGroup) {
                 lines(rangeY*2, c(0,0))
         }
 }
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

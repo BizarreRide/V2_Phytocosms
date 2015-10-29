@@ -1,6 +1,10 @@
+
+# fortify is part of the ggplot2 package and 
+# turns some output/objects into data tables
+
 if (require("multcomp")) {
-  amod <- aov(cmic.means ~ cmic.int, data = cmic.data2)
-  wht <- glht(amod, linfct = mcp(cmic.int = "Tukey"))
+  amod <- aov(Cmic ~ treat, data = cmic2)
+  wht <- glht(amod, linfct = mcp(treat = "Tukey"))
   
   fortify(wht)
   ggplot(wht, aes(lhs, estimate)) + geom_point()
